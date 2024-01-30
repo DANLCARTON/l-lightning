@@ -17,6 +17,14 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 // lumières
 scene.add(new THREE.AmbientLight(0xd2b48c, 5))
+
+const light = new THREE.PointLight( 0x00ffff, 100, 0 );
+light.position.set( 0, -26, 0 );
+scene.add( light );
+
+const pointLightHelper = new THREE.PointLightHelper( light, 1 );
+scene.add( pointLightHelper );
+
     // définition des contrôles de la caméra
 const controls = new OrbitControls(camera, renderer.domElement);
 scene.add(camera)
@@ -25,10 +33,15 @@ scene.add(camera)
 const axiom = "F";
 let sentence = axiom;
 const rules = {
-  "F": "FF+[+F-F-F]-[-F+F+F]*[*F/F/F]/[/F*F*F]"
+//   "F": "FF[F-F-F][F+F+F][F/F/F][F*F*F]"
+//   "F": "F[[-F]F[+F][F]][[/F]F[*F][F]]"
+//   "F": "F[+F]F[-F]F" // pas mal celui la
+//   "F": "FF+[+F-F-F]-[-F+F+F]*[*F/F/F]/[/F*F*F]"
+//   "F": "FF[F-F-F]F[*F/F+F]F"
+    "F": "FF[/F*F-F]F[*F/F+F]F" // choix
 };
 
-let length = 5;
+let length = .28;
 const generations = 3
 
 // Generer l-system
@@ -44,11 +57,11 @@ function generate() {
 }
 
 // Dessiner en 3D, nyaa~
-const angle = 25
+const angle = 30
 function draw(axiom) {
     console.log(axiom)
     let geometry = new THREE.BufferGeometry();
-    let material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
+    let material = new THREE.MeshPhongMaterial({ color: 0x00ffff });
 
     let vertices = [];
     let stack = [];
@@ -59,8 +72,8 @@ function draw(axiom) {
         let current = axiom.charAt(i);
 
         if (current === 'F') {
-            position.add(direction.clone().multiplyScalar(length));
             vertices.push(position.x, position.y, position.z);
+            position.add(direction.clone().multiplyScalar(length));
         } else if (current === '+') {
             direction.applyAxisAngle(new THREE.Vector3(0, 0, 1), THREE.MathUtils.degToRad(angle));
         } else if (current === '-') {
